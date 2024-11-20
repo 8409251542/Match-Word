@@ -104,7 +104,7 @@ window.location.reload();
         justifyContent: "center",
         alignItems: "center"
       }}>
-        <h4>{Math.floor(count / 2)}</h4>
+        <h4>Attempts: {Math.floor(count / 2)}</h4>
         <button style={{
         padding:"10px",
         cursor:"pointer",
