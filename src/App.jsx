@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "../src/index.css"
+import "../src/index.css";
 
 // Original data
 const data = [
@@ -33,6 +33,7 @@ function App() {
   const [keyValid, setKeyValid] = useState(null);
   const [preBox, setPreBox] = useState(null);
   const [hiddenIndices, setHiddenIndices] = useState([]);
+  const [colorMap, setColorMap] = useState({});
 
   useEffect(() => {
     const shuffled = shuffleArray(data);
@@ -41,36 +42,66 @@ function App() {
 
   const handleMatch = (item, index) => {
     setCount(count + 1);
+
     if (hiddenIndices.includes(index)) return;
+
+    setColorMap((prev) => ({
+      ...prev,
+      [index]: "blue",
+    }));
 
     if (keyValid === null) {
       setKeyValid(item.key);
       setPreBox(index);
     } else if (item.key === keyValid) {
-      setHiddenIndices([...hiddenIndices, preBox, index]);
+      // Correct match
+      setColorMap((prev) => ({
+        ...prev,
+        [index]: "green",
+        [preBox]: "green",
+      }));
+      setTimeout(() => {
+        setHiddenIndices([...hiddenIndices, preBox, index]);
+        setColorMap({});
+      }, 1000);
       setKeyValid(null);
       setPreBox(null);
     } else {
-
+      // Incorrect match
+      setColorMap((prev) => ({
+        ...prev,
+        [index]: "red",
+        [preBox]: "red",
+      }));
+      setTimeout(() => {
+        setColorMap({});
+      }, 1000);
       setKeyValid(null);
       setPreBox(null);
     }
   };
+
   const handleReset = () => {
     setCount(0);
-    // reload the current page
-window.location.reload();
+    setColorMap({});
+    setHiddenIndices([]);
+    setKeyValid(null);
+    setPreBox(null);
+    const shuffled = shuffleArray(data);
+    setShuffledData(shuffled);
+  };
 
-  }
   return (
     <>
-      <div style={{
-        display: "flex",
-        flexWrap: "wrap",
-        width: "100vw",
-        justifyContent: "center",
-        alignItems: "center"
-      }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          width: "100vw",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         {shuffledData.map((item, index) => (
           <div
             key={index}
@@ -85,9 +116,7 @@ window.location.reload();
               cursor: hiddenIndices.includes(index) ? "default" : "pointer",
               backgroundColor: hiddenIndices.includes(index)
                 ? "transparent"
-                : index === preBox
-                  ? "#d3f8d3"
-                  : "#f0f0f0",
+                : colorMap[index] || "#f0f0f0",
               display: hiddenIndices.includes(index) ? "none" : "block",
             }}
           >
@@ -95,21 +124,30 @@ window.location.reload();
           </div>
         ))}
       </div>
-      <div style={{
-        display: "flex",
-        flexWrap: "wrap",
-        paddingTop:"20px",
-        flexDirection:"column",
-        width: "100vw",
-        justifyContent: "center",
-        alignItems: "center"
-      }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          paddingTop: "20px",
+          flexDirection: "column",
+          width: "100vw",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <h4>Attempts: {Math.floor(count / 2)}</h4>
-        <button style={{
-        padding:"10px",
-        cursor:"pointer",
-        backgroundColor:"blue"
-      }} onClick={handleReset}>Reset</button>
+        <button
+          style={{
+            padding: "10px",
+            cursor: "pointer",
+            backgroundColor: "blue",
+            color: "white",
+            border: "none",
+          }}
+          onClick={handleReset}
+        >
+          Reset
+        </button>
       </div>
     </>
   );
